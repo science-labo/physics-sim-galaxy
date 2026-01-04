@@ -2,50 +2,97 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>太陽系と銀河 3Dシミュレーション</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; overflow: hidden; background: #000; color: #fff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', sans-serif; overflow: hidden; background: #000; color: #fff; touch-action: none; }
         #canvas-container { width: 100vw; height: 100vh; position: relative; }
-        #info-panel { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 10px; max-width: 380px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); z-index: 10; }
-        h1 { font-size: 24px; margin-bottom: 15px; color: #4CAF50; }
-        h2 { font-size: 18px; margin: 15px 0 10px 0; color: #64B5F6; }
-        .control-panel { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.9); padding: 15px; border-radius: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); z-index: 10; }
-        button { background: #4CAF50; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 5px; cursor: pointer; font-size: 14px; transition: all 0.3s; }
-        button:hover { background: #45a049; transform: translateY(-2px); }
+        #info-panel { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.9); padding: 15px; border-radius: 10px; max-width: 90%; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); z-index: 10; font-size: 14px; max-height: 40vh; overflow-y: auto; }
+        @media (min-width: 768px) {
+            #info-panel { max-width: 380px; padding: 20px; font-size: 16px; }
+        }
+        h1 { font-size: 18px; margin-bottom: 10px; color: #4CAF50; }
+        @media (min-width: 768px) {
+            h1 { font-size: 24px; margin-bottom: 15px; }
+        }
+        h2 { font-size: 16px; margin: 10px 0 8px 0; color: #64B5F6; }
+        @media (min-width: 768px) {
+            h2 { font-size: 18px; margin: 15px 0 10px 0; }
+        }
+        .control-panel { position: absolute; bottom: 10px; left: 10px; right: 10px; background: rgba(0,0,0,0.9); padding: 10px; border-radius: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); z-index: 10; }
+        @media (min-width: 768px) {
+            .control-panel { left: 20px; right: auto; bottom: 20px; padding: 15px; }
+        }
+        button { background: #4CAF50; color: white; border: none; padding: 8px 12px; margin: 3px; border-radius: 5px; cursor: pointer; font-size: 12px; transition: all 0.3s; }
+        @media (min-width: 768px) {
+            button { padding: 10px 20px; margin: 5px; font-size: 14px; }
+        }
+        button:active { background: #45a049; transform: scale(0.95); }
         button.active { background: #2196F3; }
-        .planet-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 10px; }
-        .planet-btn { padding: 8px 12px; font-size: 12px; }
-        .scale-info { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.9); padding: 15px; border-radius: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); text-align: right; z-index: 10; }
-        .legend { margin-top: 10px; font-size: 12px; color: #aaa; }
-        #loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; color: #4CAF50; z-index: 100; }
-        .warning { background: rgba(255,152,0,0.2); padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 12px; color: #FFB74D; border: 1px solid rgba(255,152,0,0.4); }
+        .view-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 8px; }
+        .planet-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+        @media (min-width: 768px) {
+            .planet-buttons { gap: 5px; }
+        }
+        .planet-btn { padding: 6px 8px; font-size: 11px; }
+        @media (min-width: 768px) {
+            .planet-btn { padding: 8px 12px; font-size: 12px; }
+        }
+        .scale-info { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.9); padding: 10px; border-radius: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); text-align: right; z-index: 10; font-size: 11px; }
+        @media (min-width: 768px) {
+            .scale-info { padding: 15px; font-size: 14px; }
+        }
+        .legend { margin-top: 8px; font-size: 10px; color: #aaa; }
+        @media (min-width: 768px) {
+            .legend { margin-top: 10px; font-size: 12px; }
+        }
+        #loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 20px; color: #4CAF50; z-index: 100; }
+        @media (min-width: 768px) {
+            #loading { font-size: 24px; }
+        }
+        .warning { background: rgba(255,152,0,0.2); padding: 8px; border-radius: 5px; margin-top: 8px; font-size: 11px; color: #FFB74D; border: 1px solid rgba(255,152,0,0.4); }
+        @media (min-width: 768px) {
+            .warning { padding: 10px; margin-top: 10px; font-size: 12px; }
+        }
+        .toggle-info { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.9); padding: 8px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); z-index: 11; font-size: 12px; cursor: pointer; }
+        @media (min-width: 768px) {
+            .toggle-info { display: none; }
+        }
+        .hidden-mobile { display: none; }
+        @media (min-width: 768px) {
+            .hidden-mobile { display: block; }
+        }
     </style>
 </head>
 <body>
     <div id="canvas-container"></div>
-    <div id="info-panel">
+    
+    <div class="toggle-info" onclick="toggleInfoPanel()">ℹ️ 情報</div>
+    
+    <div id="info-panel" class="hidden-mobile">
         <h1>🌌 太陽系 & 銀河シミュレーター</h1>
         <div id="object-info"><p>惑星またはビューモードを選択してください</p></div>
         <div class="warning">
-            ⚠️ 実際の比率モード：惑星は非常に小さく、内惑星は太陽の近くに密集しています。ズームとドラッグで探索してください。
+            ⚠️ 実際の比率モード：惑星は非常に小さく、内惑星は太陽の近くに密集しています。ピンチ・スワイプで探索してください。
         </div>
     </div>
+    
     <div class="scale-info">
-        <h2>スケール情報</h2>
-        <div id="scale-display">
-            <p>現在のビュー: <span id="current-view">太陽系</span></p>
-            <p>サイズ比率: <span id="size-scale">実際の比率</span></p>
-            <p>距離比率: <span id="distance-scale">実際の比率</span></p>
+        <div>ビュー: <span id="current-view">太陽系</span></div>
+        <div class="legend">
+            <p>📱 スワイプ: 回転</p>
+            <p>🤏 ピンチ: ズーム</p>
         </div>
-        <div class="legend"><p>マウスドラッグ: 回転</p><p>ホイール: ズーム</p></div>
     </div>
+    
     <div class="control-panel">
-        <div>
-            <button id="solar-view" class="active">太陽系ビュー</button>
-            <button id="galaxy-view">銀河ビュー</button>
-            <button id="compare-view">比較ビュー</button>
+        <div class="view-buttons">
+            <button id="solar-view" class="active">太陽系</button>
+            <button id="galaxy-view">銀河</button>
+            <button id="compare-view">比較</button>
         </div>
         <div class="planet-buttons">
             <button class="planet-btn" data-planet="sun">太陽</button>
@@ -57,15 +104,23 @@
             <button class="planet-btn" data-planet="saturn">土星</button>
             <button class="planet-btn" data-planet="uranus">天王星</button>
             <button class="planet-btn" data-planet="neptune">海王星</button>
-            <button class="planet-btn" data-planet="halley">ハレー彗星</button>
+            <button class="planet-btn" data-planet="halley">彗星</button>
         </div>
     </div>
+    
     <div id="loading">読み込み中...</div>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         let scene,camera,renderer,planets={},galaxyGroup,solarSystemGroup,blackHole;
+        let touchStartDistance=0;
+        let lastTouchX=0,lastTouchY=0;
         
-        // 実際の惑星データ（km単位）
+        function toggleInfoPanel(){
+            const panel=document.getElementById('info-panel');
+            panel.classList.toggle('hidden-mobile');
+        }
+        
         const planetData={
             sun:{name:'太陽',radius:696000,distance:0,color:0xFDB813,info:'太陽系の中心にある恒星。質量は太陽系全体の99.86%を占める。',realSize:'直径: 1,392,000 km',rotation:0.004},
             mercury:{name:'水星',radius:2440,distance:57910000,color:0x8C7853,info:'太陽に最も近い惑星。表面温度は昼間430°C、夜間-180°C。',realSize:'直径: 4,880 km',rotation:0.01},
@@ -79,9 +134,8 @@
             halley:{name:'ハレー彗星',radius:5500,distance:5250000000,color:0xCCCCCC,info:'約76年周期で太陽に接近する有名な彗星。次回の接近は2061年。',realSize:'核の直径: 約15×8 km',rotation:0.05,isComet:true,eccentricity:0.967}
         };
         
-        // スケール設定（実際の比率を維持）
-        const SCALE_FACTOR = 1/1000000; // 距離スケール: 1単位 = 100万km
-        const SIZE_SCALE = 1/20000; // サイズスケール: 太陽をさらに小さく（以前の半分）
+        const SCALE_FACTOR=1/1000000;
+        const SIZE_SCALE=1/20000;
         
         function init(){
             scene=new THREE.Scene();
@@ -92,10 +146,8 @@
             renderer.setSize(window.innerWidth,window.innerHeight);
             document.getElementById('canvas-container').appendChild(renderer.domElement);
             
-            const ambientLight=new THREE.AmbientLight(0x333333,1.5);
-            scene.add(ambientLight);
+            scene.add(new THREE.AmbientLight(0x333333,1.5));
             const sunLight=new THREE.PointLight(0xFFFFAA,4,0);
-            sunLight.position.set(0,0,0);
             scene.add(sunLight);
             
             createStarfield();
@@ -115,217 +167,91 @@
         
         function createSolarSystem(){
             solarSystemGroup=new THREE.Group();
-            
             Object.keys(planetData).forEach(key=>{
                 const data=planetData[key];
                 const displayRadius=data.radius*SIZE_SCALE;
                 const displayDistance=data.distance*SCALE_FACTOR;
-                
-                console.log(key+': radius='+displayRadius.toFixed(3)+', distance='+displayDistance.toFixed(2));
-                
                 const geometry=new THREE.SphereGeometry(displayRadius,32,32);
-                const material=new THREE.MeshPhongMaterial({
-                    color:data.color,
-                    emissive:key==='sun'?data.color:0x000000,
-                    emissiveIntensity:key==='sun'?0.9:0,
-                    shininess:key==='sun'?100:30
-                });
+                const material=new THREE.MeshPhongMaterial({color:data.color,emissive:key==='sun'?data.color:0x000000,emissiveIntensity:key==='sun'?0.9:0,shininess:key==='sun'?100:30});
                 const planet=new THREE.Mesh(geometry,material);
                 planet.position.x=displayDistance;
-                
-                // 軌道線
                 if(key!=='sun'){
                     const orbitPoints=[];
-                    const segments=256;
-                    for(let i=0;i<=segments;i++){
-                        const angle=(i/segments)*Math.PI*2;
+                    for(let i=0;i<=256;i++){
+                        const angle=(i/256)*Math.PI*2;
                         const ecc=data.eccentricity||0;
                         const a=displayDistance;
                         const r=a*(1-ecc*ecc)/(1+ecc*Math.cos(angle));
                         orbitPoints.push(new THREE.Vector3(Math.cos(angle)*r,0,Math.sin(angle)*r));
                     }
                     const orbitGeometry=new THREE.BufferGeometry().setFromPoints(orbitPoints);
-                    const orbitMaterial=new THREE.LineBasicMaterial({
-                        color:data.isComet?0x666666:0x555555,
-                        transparent:true,
-                        opacity:data.isComet?0.3:0.6
-                    });
-                    const orbitLine=new THREE.Line(orbitGeometry,orbitMaterial);
-                    solarSystemGroup.add(orbitLine);
+                    const orbitMaterial=new THREE.LineBasicMaterial({color:data.isComet?0x666666:0x555555,transparent:true,opacity:data.isComet?0.3:0.6});
+                    solarSystemGroup.add(new THREE.Line(orbitGeometry,orbitMaterial));
                 }
-                
-                // 土星の環
                 if(key==='saturn'){
-                    const ring=new THREE.Mesh(
-                        new THREE.RingGeometry(displayRadius*1.5,displayRadius*2.5,64),
-                        new THREE.MeshBasicMaterial({color:0xF4E6C3,side:THREE.DoubleSide,transparent:true,opacity:0.7})
-                    );
+                    const ring=new THREE.Mesh(new THREE.RingGeometry(displayRadius*1.5,displayRadius*2.5,64),new THREE.MeshBasicMaterial({color:0xF4E6C3,side:THREE.DoubleSide,transparent:true,opacity:0.7}));
                     ring.rotation.x=Math.PI/2;
                     planet.add(ring);
                 }
-                
-                // 彗星の尾
                 if(data.isComet){
                     const tailLength=displayRadius*10;
-                    const tailGeometry=new THREE.ConeGeometry(displayRadius*0.6,tailLength,8);
-                    const tailMaterial=new THREE.MeshBasicMaterial({color:0x88CCFF,transparent:true,opacity:0.5});
-                    const tail=new THREE.Mesh(tailGeometry,tailMaterial);
+                    const tail=new THREE.Mesh(new THREE.ConeGeometry(displayRadius*0.6,tailLength,8),new THREE.MeshBasicMaterial({color:0x88CCFF,transparent:true,opacity:0.5}));
                     tail.rotation.z=Math.PI/2;
                     tail.position.x=-tailLength/2;
                     planet.add(tail);
                 }
-                
                 solarSystemGroup.add(planet);
-                planets[key]={
-                    mesh:planet,
-                    data:data,
-                    angle:Math.random()*Math.PI*2,
-                    distance:displayDistance,
-                    radius:displayRadius,
-                    eccentricity:data.eccentricity||0
-                };
+                planets[key]={mesh:planet,data:data,angle:Math.random()*Math.PI*2,distance:displayDistance,radius:displayRadius,eccentricity:data.eccentricity||0};
             });
-            
             scene.add(solarSystemGroup);
         }
         
         function createGalaxy(){
             if(galaxyGroup)scene.remove(galaxyGroup);
             galaxyGroup=new THREE.Group();
-            
-            // 銀河円盤
-            const galaxyDisk=new THREE.Mesh(
-                new THREE.TorusGeometry(800,200,16,100),
-                new THREE.MeshBasicMaterial({color:0x6A0DAD,transparent:true,opacity:0.3,wireframe:true})
-            );
-            galaxyGroup.add(galaxyDisk);
-            
-            // 銀河中心バルジ（膨らみ）
-            const bulgeGeometry=new THREE.SphereGeometry(150,32,32);
-            const bulgeMaterial=new THREE.MeshBasicMaterial({
-                color:0xFFAA33,
-                transparent:true,
-                opacity:0.6
-            });
-            const bulge=new THREE.Mesh(bulgeGeometry,bulgeMaterial);
+            // 銀河の格子状トーラスを削除（ユーザーリクエスト）
+            const bulge=new THREE.Mesh(new THREE.SphereGeometry(150,32,32),new THREE.MeshBasicMaterial({color:0xFFAA33,transparent:true,opacity:0.6}));
             galaxyGroup.add(bulge);
-            
-            // 中心ブラックホール（いて座A*）
-            const blackHoleGeometry=new THREE.SphereGeometry(20,32,32);
-            const blackHoleMaterial=new THREE.MeshBasicMaterial({
-                color:0x000000,
-                emissive:0x000000
-            });
-            blackHole=new THREE.Mesh(blackHoleGeometry,blackHoleMaterial);
+            blackHole=new THREE.Mesh(new THREE.SphereGeometry(20,32,32),new THREE.MeshBasicMaterial({color:0x000000,emissive:0x000000}));
             galaxyGroup.add(blackHole);
-            
-            // ブラックホールの降着円盤（光る環）
-            const accretionDisk=new THREE.Mesh(
-                new THREE.RingGeometry(25,60,64),
-                new THREE.MeshBasicMaterial({
-                    color:0xFF6600,
-                    side:THREE.DoubleSide,
-                    transparent:true,
-                    opacity:0.8
-                })
-            );
+            const accretionDisk=new THREE.Mesh(new THREE.RingGeometry(25,60,64),new THREE.MeshBasicMaterial({color:0xFF6600,side:THREE.DoubleSide,transparent:true,opacity:0.8}));
             accretionDisk.rotation.x=Math.PI/2;
             blackHole.add(accretionDisk);
-            
-            // ブラックホールからのジェット
-            const jetGeometry=new THREE.CylinderGeometry(5,8,300,8);
-            const jetMaterial=new THREE.MeshBasicMaterial({
-                color:0x00AAFF,
-                transparent:true,
-                opacity:0.6
-            });
-            const jet1=new THREE.Mesh(jetGeometry,jetMaterial);
+            const jet1=new THREE.Mesh(new THREE.CylinderGeometry(5,8,300,8),new THREE.MeshBasicMaterial({color:0x00AAFF,transparent:true,opacity:0.6}));
             jet1.position.y=150;
             blackHole.add(jet1);
-            const jet2=new THREE.Mesh(jetGeometry,jetMaterial);
+            const jet2=new THREE.Mesh(new THREE.CylinderGeometry(5,8,300,8),new THREE.MeshBasicMaterial({color:0x00AAFF,transparent:true,opacity:0.6}));
             jet2.position.y=-150;
             blackHole.add(jet2);
-            
-            // 銀河の星々（螺旋構造を強調）
-            const starsVertices=[];
-            const starsColors=[];
+            const starsVertices=[],starsColors=[];
             for(let i=0;i<150000;i++){
-                const angle=Math.random()*Math.PI*2;
-                const spiralAngle=angle*3;
+                const angle=Math.random()*Math.PI*2,spiralAngle=angle*3;
                 let radius=Math.random()*800;
-                
-                if(Math.random()<0.3){
-                    radius=Math.random()*200;
-                }
-                
-                const x=Math.cos(angle+spiralAngle*0.2)*radius;
-                const z=Math.sin(angle+spiralAngle*0.2)*radius;
-                const y=(Math.random()-0.5)*Math.max(10,80*(1-radius/800));
-                
+                if(Math.random()<0.3)radius=Math.random()*200;
+                const x=Math.cos(angle+spiralAngle*0.2)*radius,z=Math.sin(angle+spiralAngle*0.2)*radius,y=(Math.random()-0.5)*Math.max(10,80*(1-radius/800));
                 starsVertices.push(x,y,z);
-                
                 const colorFactor=radius/800;
                 starsColors.push(1,0.8+colorFactor*0.2,0.6+colorFactor*0.4);
             }
-            
             const starsGeometry=new THREE.BufferGeometry();
             starsGeometry.setAttribute('position',new THREE.Float32BufferAttribute(starsVertices,3));
             starsGeometry.setAttribute('color',new THREE.Float32BufferAttribute(starsColors,3));
-            const starsMaterial=new THREE.PointsMaterial({
-                size:1,
-                vertexColors:true,
-                transparent:true,
-                opacity:0.8
-            });
-            const galaxyStars=new THREE.Points(starsGeometry,starsMaterial);
-            galaxyGroup.add(galaxyStars);
-            
-            const solarSystemMarker=new THREE.Mesh(
-                new THREE.SphereGeometry(5,16,16),
-                new THREE.MeshBasicMaterial({color:0xFFFF00})
-            );
-            solarSystemMarker.position.set(560,5,0);
-            galaxyGroup.add(solarSystemMarker);
-            
-            const solarSystemLabel=createTextSprite('太陽系',0xFFFF00);
-            solarSystemLabel.position.set(560,20,0);
-            galaxyGroup.add(solarSystemLabel);
-            
-            const blackHoleLabel=createTextSprite('いて座A* (超大質量ブラックホール)',0xFF6600);
-            blackHoleLabel.position.set(0,100,0);
-            galaxyGroup.add(blackHoleLabel);
-            
+            galaxyGroup.add(new THREE.Points(starsGeometry,new THREE.PointsMaterial({size:1,vertexColors:true,transparent:true,opacity:0.8})));
+            const marker=new THREE.Mesh(new THREE.SphereGeometry(5,16,16),new THREE.MeshBasicMaterial({color:0xFFFF00}));
+            marker.position.set(560,5,0);
+            galaxyGroup.add(marker);
             scene.add(galaxyGroup);
-        }
-        
-        function createTextSprite(text,color){
-            const canvas=document.createElement('canvas');
-            const context=canvas.getContext('2d');
-            canvas.width=512;
-            canvas.height=128;
-            context.fillStyle='rgba(0,0,0,0.7)';
-            context.fillRect(0,0,canvas.width,canvas.height);
-            context.font='bold 32px Arial';
-            context.fillStyle='#'+color.toString(16).padStart(6,'0');
-            context.textAlign='center';
-            context.fillText(text,256,70);
-            const texture=new THREE.Texture(canvas);
-            texture.needsUpdate=true;
-            const spriteMaterial=new THREE.SpriteMaterial({map:texture});
-            const sprite=new THREE.Sprite(spriteMaterial);
-            sprite.scale.set(60,15,1);
-            return sprite;
         }
         
         function setupControls(){
             let isDragging=false,prev={x:0,y:0};
+            
+            // マウス操作（PC用）
             renderer.domElement.addEventListener('mousedown',e=>{isDragging=true;prev={x:e.clientX,y:e.clientY}});
             renderer.domElement.addEventListener('mousemove',e=>{
                 if(isDragging){
-                    const deltaX=(e.clientX-prev.x)*0.5;
-                    const deltaY=(e.clientY-prev.y)*0.5;
-                    camera.position.x+=deltaX;
-                    camera.position.y-=deltaY;
+                    camera.position.x+=(e.clientX-prev.x)*0.5;
+                    camera.position.y-=(e.clientY-prev.y)*0.5;
                     camera.lookAt(0,0,0);
                     prev={x:e.clientX,y:e.clientY};
                 }
@@ -336,6 +262,47 @@
                 const zoomSpeed=camera.position.length()*0.001;
                 camera.position.z=Math.max(5,Math.min(camera.position.z+e.deltaY*zoomSpeed,10000));
             });
+            
+            // タッチ操作（スマホ/タブレット用）
+            renderer.domElement.addEventListener('touchstart',e=>{
+                e.preventDefault();
+                if(e.touches.length===1){
+                    isDragging=true;
+                    lastTouchX=e.touches[0].clientX;
+                    lastTouchY=e.touches[0].clientY;
+                }else if(e.touches.length===2){
+                    isDragging=false;
+                    const dx=e.touches[0].clientX-e.touches[1].clientX;
+                    const dy=e.touches[0].clientY-e.touches[1].clientY;
+                    touchStartDistance=Math.sqrt(dx*dx+dy*dy);
+                }
+            },{passive:false});
+            
+            renderer.domElement.addEventListener('touchmove',e=>{
+                e.preventDefault();
+                if(e.touches.length===1&&isDragging){
+                    const deltaX=(e.touches[0].clientX-lastTouchX)*0.8;
+                    const deltaY=(e.touches[0].clientY-lastTouchY)*0.8;
+                    camera.position.x+=deltaX;
+                    camera.position.y-=deltaY;
+                    camera.lookAt(0,0,0);
+                    lastTouchX=e.touches[0].clientX;
+                    lastTouchY=e.touches[0].clientY;
+                }else if(e.touches.length===2){
+                    const dx=e.touches[0].clientX-e.touches[1].clientX;
+                    const dy=e.touches[0].clientY-e.touches[1].clientY;
+                    const distance=Math.sqrt(dx*dx+dy*dy);
+                    const delta=(touchStartDistance-distance)*2;
+                    camera.position.z=Math.max(5,Math.min(camera.position.z+delta,10000));
+                    touchStartDistance=distance;
+                }
+            },{passive:false});
+            
+            renderer.domElement.addEventListener('touchend',e=>{
+                e.preventDefault();
+                isDragging=false;
+                touchStartDistance=0;
+            },{passive:false});
         }
         
         function setupEventListeners(){
@@ -348,21 +315,14 @@
         
         function switchView(view){
             document.querySelectorAll('.control-panel button').forEach(btn=>btn.classList.remove('active'));
-            
             if(view==='solar'){
                 document.getElementById('solar-view').classList.add('active');
                 camera.position.set(0,200,400);
                 camera.lookAt(0,0,0);
                 if(galaxyGroup)scene.remove(galaxyGroup);
-                if(solarSystemGroup){
-                    solarSystemGroup.visible=true;
-                    solarSystemGroup.position.set(0,0,0);
-                    solarSystemGroup.scale.set(1,1,1);
-                }
+                if(solarSystemGroup){solarSystemGroup.visible=true;solarSystemGroup.position.set(0,0,0);solarSystemGroup.scale.set(1,1,1);}
                 document.getElementById('current-view').textContent='太陽系';
-                document.getElementById('size-scale').textContent='実際の比率';
-                document.getElementById('distance-scale').textContent='実際の比率';
-                updateInfo('','太陽系全体を表示しています。惑星をクリックして詳細を確認できます。<br><br>内惑星（水星・金星・地球・火星）は太陽の近くに密集しています。ズームインして確認してください。');
+                updateInfo('','太陽系全体を表示しています。惑星をタップして詳細を確認できます。');
             }else if(view==='galaxy'){
                 document.getElementById('galaxy-view').classList.add('active');
                 if(solarSystemGroup)solarSystemGroup.visible=false;
@@ -370,46 +330,30 @@
                 camera.position.set(0,600,1200);
                 camera.lookAt(0,0,0);
                 document.getElementById('current-view').textContent='天の川銀河';
-                document.getElementById('size-scale').textContent='-';
-                document.getElementById('distance-scale').textContent='-';
-                updateInfo('天の川銀河','私たちの太陽系が属する銀河。2000億-4000億個の恒星を含む。<br><br>直径: 約100,000光年 (946兆km)<br><br>中心には<strong>いて座A*</strong>と呼ばれる超大質量ブラックホール（質量は太陽の約400万倍）が存在します。<br><br>中央の黄色い膨らみが<strong>バルジ</strong>、周囲が<strong>銀河円盤</strong>です。黄色い点が太陽系の位置です。');
+                updateInfo('天の川銀河','中心には超大質量ブラックホール「いて座A*」が存在します。中央の黄色い膨らみがバルジ、周囲が銀河円盤です。');
             }else{
                 document.getElementById('compare-view').classList.add('active');
                 createGalaxy();
-                if(solarSystemGroup){
-                    solarSystemGroup.visible=true;
-                    solarSystemGroup.position.set(560,5,0);
-                    solarSystemGroup.scale.set(0.01,0.01,0.01);
-                }
+                if(solarSystemGroup){solarSystemGroup.visible=true;solarSystemGroup.position.set(560,5,0);solarSystemGroup.scale.set(0.01,0.01,0.01);}
                 camera.position.set(0,500,1000);
                 camera.lookAt(0,0,0);
                 document.getElementById('current-view').textContent='比較';
-                document.getElementById('size-scale').textContent='相対比較';
-                document.getElementById('distance-scale').textContent='相対比較';
-                updateInfo('スケール比較','太陽系の大きさ: 約90億km（海王星軌道まで）<br>天の川銀河の大きさ: 約946兆km（100,000光年）<br><br>銀河は太陽系の約<strong>10万倍</strong>の大きさです！<br><br>銀河の中の黄色い点の位置に、極小の太陽系が表示されています（100分の1スケール）。<br><br>中心の黒い球体がブラックホール、その周りのオレンジ色の光が降着円盤です。');
+                updateInfo('スケール比較','銀河は太陽系の約10万倍の大きさです！銀河の中の黄色い点の位置に、極小の太陽系が表示されています。');
             }
         }
         
         function focusOnPlanet(planetKey){
             const planet=planets[planetKey];
             if(!planet)return;
-            
-            if(solarSystemGroup){
-                solarSystemGroup.position.set(0,0,0);
-                solarSystemGroup.scale.set(1,1,1);
-                solarSystemGroup.visible=true;
-            }
+            if(solarSystemGroup){solarSystemGroup.position.set(0,0,0);solarSystemGroup.scale.set(1,1,1);solarSystemGroup.visible=true;}
             if(galaxyGroup)scene.remove(galaxyGroup);
-            
             document.getElementById('solar-view').classList.add('active');
             document.getElementById('galaxy-view').classList.remove('active');
             document.getElementById('compare-view').classList.remove('active');
-            
             const pos=planet.mesh.position;
             const zoomDistance=planet.radius*50;
             camera.position.set(pos.x+zoomDistance,pos.y+zoomDistance*0.5,pos.z+zoomDistance);
             camera.lookAt(pos.x,pos.y,pos.z);
-            
             const distanceInfo=planetKey==='sun'?'':'<br><br>太陽からの距離: '+(planet.data.distance/1000000).toFixed(1)+'百万km';
             updateInfo(planet.data.name,planet.data.info+'<br><br>'+planet.data.realSize+distanceInfo);
         }
@@ -420,33 +364,22 @@
         
         function animate(){
             requestAnimationFrame(animate);
-            
             Object.keys(planets).forEach(key=>{
                 const planet=planets[key];
                 planet.mesh.rotation.y+=planet.data.rotation;
-                
                 if(key!=='sun'){
                     planet.angle-=0.001/Math.sqrt(planet.distance||1);
-                    const ecc=planet.eccentricity;
-                    const a=planet.distance;
+                    const ecc=planet.eccentricity,a=planet.distance;
                     const r=a*(1-ecc*ecc)/(1+ecc*Math.cos(planet.angle));
                     planet.mesh.position.x=Math.cos(planet.angle)*r;
                     planet.mesh.position.z=Math.sin(planet.angle)*r;
-                    
                     if(planet.data.isComet){
                         const angle=Math.atan2(planet.mesh.position.z,planet.mesh.position.x);
                         planet.mesh.rotation.y=-angle;
                     }
                 }
             });
-            
-            if(galaxyGroup){
-                galaxyGroup.rotation.y+=0.0005;
-                if(blackHole){
-                    blackHole.rotation.y+=0.02;
-                }
-            }
-            
+            if(galaxyGroup){galaxyGroup.rotation.y+=0.0005;if(blackHole)blackHole.rotation.y+=0.02;}
             renderer.render(scene,camera);
         }
         
